@@ -4,6 +4,7 @@ def addDollarSign(amt):
     else:
         return '$'+amt
 
+
 def handleLatexChars(s):
     return (
         s.replace("$","\\$")
@@ -16,3 +17,12 @@ def handleLatexChars(s):
         .replace(">", "\\textgreater ")
         .replace("<", "\\textless ")
     )
+
+
+def parse_email(name, affiliation):
+    if affiliation == "Student":
+        return ".".join(name.split()) + "@students.olin.edu"
+    elif affiliation == "Alum":
+        return ".".join(name.split()) + "@alumni.olin.edu"
+    else:
+        return ".".join(name.split()) + "@olin.edu"
