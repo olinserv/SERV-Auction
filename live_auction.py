@@ -3,10 +3,10 @@
 import csv
 from helpers import *
 
-sample = open('2016/live.csv', "rb")
+sample = open('2017/live.csv', "rb")
 readSample = csv.reader(sample, delimiter=',', quotechar='"')
 
-f = open('2016/live.tex','w')
+f = open('2017/live.tex','w')
 
 print >>f, "\documentclass[11pt]{article}"
 print >>f, "\pagestyle{plain} \\topmargin -.5in \oddsidemargin 0in"

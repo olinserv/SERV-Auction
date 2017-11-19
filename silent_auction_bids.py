@@ -1,98 +1,92 @@
+#run in Python 2.7
+
 # KNOWN ANOMALIES: "\^\^" is not valid Latex (needs to not be escaped), but "^" must be escaped everywhere else. Odd edge case.
+# I made some changes but have yet to test it because the auction is over. So FYI, it might not run perfectly. -2017
 
 import csv
 from helpers import *
 
-sample = open('2016/silent.csv', "rb")
-readSample = csv.reader(sample, delimiter=',', quotechar='"')
+ALUMNI_FILTER = False
+NUM_LINES = 26
 
-f = open('2016/servsheets.tex','w')
-g = open('2016/servpacket.tex','w')
+with open('2017/silent.csv', 'r') as sample:
+	readSample = csv.reader(sample, delimiter=',', quotechar='"')
 
-print >>f, "\\documentclass[11pt]{article}"
-print >>f, "\\pagestyle{plain} \\topmargin -.5in \oddsidemargin 0in"
-print >>f, "\\evensidemargin 0in \\textwidth 6.5in \\textheight 8in"
-print >>f, "\\setlength{\parindent}{0in}"
-print >>f, "\\begin{document}"
+	f = open('2017/servsheets.tex','w')
+	g = open('2017/servpacket.tex','w')
 
-print >>g, "\\documentclass[11pt]{article}"
-print >>g, "\\pagestyle{plain} \\topmargin -.5in \oddsidemargin 0in"
-print >>g, "\\evensidemargin 0in \\textwidth 6.5in \\textheight 8in"
-print >>g, "\\setlength{\parindent}{0in}"
-print >>g, "\\title{Silent Auction Donation Packet}"
-print >>g, "\\author{SERV Auction 2016}"
-# TODO: Update these dates.
-print >>g, "\\date{November 7th, 2016 to November 11th, 2016}"
-print >>g, "\\begin{document}"
-print >>g, "\\maketitle"
+	print >>f, "\\documentclass[11pt]{article}"
+	print >>f, "\\pagestyle{plain} \\topmargin -.5in \oddsidemargin 0in"
+	print >>f, "\\evensidemargin 0in \\textwidth 6.5in \\textheight 8in"
+	print >>f, "\\setlength{\parindent}{0in}"
+	print >>f, "\\begin{document}"
 
-categories = [[],[],[],[],[],[]]
-categoryNames = ["Services", "Food", "Events", "Lessons", "Arts and Crafts", "Miscellaneous"]
+	print >>g, "\\documentclass[11pt]{article}"
+	print >>g, "\\pagestyle{plain} \\topmargin -.5in \oddsidemargin 0in"
+	print >>g, "\\evensidemargin 0in \\textwidth 6.5in \\textheight 8in"
+	print >>g, "\\setlength{\parindent}{0in}"
+	print >>g, "\\title{Silent Auction Donation Packet}"
+	print >>g, "\\author{SERV Auction 2016}"
+	# TODO: Update these dates.
+	print >>g, "\\date{November 7th, 2016 to November 11th, 2016}"
+	print >>g, "\\begin{document}"
+	print >>g, "\\maketitle"
 
-for item in readSample:
-    if (item[5] == categoryNames[0]):
-        categories[0].append(item)
-    elif (item[5] == categoryNames[1]):
-        categories[1].append(item)
-    elif (item[5] == categoryNames[2]):
-        categories[2].append(item)
-    elif (item[5] == categoryNames[3]):
-        categories[3].append(item)
-    elif (item[5] == categoryNames[4]):
-        categories[4].append(item)
-    elif (item[5] == categoryNames[5]):
-        categories[5].append(item)
+	categories = [[],[],[],[],[],[]]
+	categoryNames = ["Services", "Food", "Events", "Lessons", "Arts and Crafts", "Miscellaneous"]
 
-for (i, category) in enumerate(categories):
+	header = True # I can't for the life of me figure out a better way to skip the header
+	for item in readSample:
+		if header:
+			header = False
+			continue
+		idx = categoryNames.index(item[5])
+		categories[idx].append(item)
 
-    category = sorted(category,key=lambda item: float(item[8].lstrip('$').rstrip('$'))) # sort by minimum bid, lowest to highest
-    print >>g, "\section{"+categoryNames[i]+"}"
-    for (j,item) in enumerate(category):
+	for i, category in enumerate(categories):
 
-        # NOTE: Change the numbers here to match the CSV.
-        # timestamp   = item[0]
-        personName  = item[1]
-        email       = item[2]
-        # affiliation = item[3]
-        title       = item[4]
-        # category    = item[5]
-        interestFor = item[6]
-        # isForLive   = item[7]
-        startingBid = item[8]
-        description = item[9]
-        numWinners  = item[10]
+		category = sorted(category, key=lambda item:item[3].lower()) # sort by title, alphabetically
+		print >>g, "\section{"+categoryNames[i]+"}"
+		for j, item in enumerate(category):
+			name, email, affiliation, title, description, category, starting_bid, interest_for, num_winners = item #NOTE: make sure this header is right
 
-        # Enable Alumni only filter.
-        if 'Alumni' not in interestFor:
-            continue
+			if not email:
+				email = parse_email(name, affiliation) #format some things correctly
+			description = handleLatexChars(description).rstrip()
+			starting_bid = handleLatexChars(addDollarSign(starting_bid))
+			interest_for = handleLatexChars(interest_for)
+			num_winners  = int(num_winners) if num_winners else 1
 
-        print >>f, "\section*{"+str(i+1)+"."+str(j+1)+" "+handleLatexChars(title)+"}" # title
-        print >>f, handleLatexChars(personName) # name
-        print >>f, "\\\\"
-        print >>f, "Starting Bid: "+handleLatexChars(addDollarSign(startingBid))
-        print >>f, "\\newline"
-        if (numWinners != '' and handleLatexChars(numWinners) != '1'):
-            print >>f, "Number of winners: "+handleLatexChars(numWinners)
-            print >>f, "\\newline"
-        print >>f, handleLatexChars(description).rstrip() # description
-        print >>f, "\\\\[6ex]"
-        print >>f, "\\begin{tabular}{c c c}"
-        print >>f, "~~~~~~~~~~~~~Name~~~~~~~~~~~~~ & ~~~~~~~~~Bid (\$)~~~~~~~~~  & ~~~Email Address (if not standard olin.edu)~~~\\"+"\\"
-        for a in range(26): # print lines for bids
-            print >>f, " & & \\"+"\\"
-            print >>f, "\hline"
-        print >>f, "\\end{tabular}"
-        print >>f, "\\newpage"
+			# Enable Alumni only filter.
+			if ALUMNI_FILTER:
+				if 'Alumni' not in interest_for and 'anyone' not in interest_for:
+					continue
 
-        print >>g, "\subsection{"+handleLatexChars(title)+"}" # title
-        print >>g, handleLatexChars(personName) # name
-        print >>g, "\\\\"
-        print >>g, "Starting Bid: "+handleLatexChars(addDollarSign(startingBid))
-        print >>g, "\\newline"
-        if (numWinners != '' and handleLatexChars(numWinners) != '1'):
-            print >>g, "Number of winners: "+handleLatexChars(numWinners)
-            print >>g, "\\newline"
-        print >>g, handleLatexChars(description).rstrip() # description
+			print >>f, r"\section*{{{}.{} {}}}".format(i+1, j+1, title) # title
+			print >>f, r"{} ({}) \\".format(name, email) # name
+			print >>f, r"Starting Bid: {} \\".format(starting_bid)
+			print >>f, r"Winner(s): "
+			if num_winners == 1: 	print >>f, r"Top bidder \\"
+			else: 					print >>f, r"Top {} bids \\".format(num_winners)
+			print >>f, r"{} \\[6ex]".format(description) # description
+			print >>f, r"\begin{tabular}{c c c}"
+			print >>f, r"~~~~~~~~~~~~~Name~~~~~~~~~~~~~ & ~~~~~~~~~Bid (\$)~~~~~~~~~ & ~~~Email Address (if not standard olin.edu)~~~ \\"
+			for a in range(NUM_LINES): # print lines for bids
+				print >>f, r" & & \\"
+				print >>f, r"\hline"
+			print >>f, r"\end{tabular}"
+			print >>f, r"\clearpage"
 
-print >>f, "\\end{document}"
-print >>g, "\\end{document}"
+			print >>g, r"\subsection{{{}}}".format(title) # title
+			print >>g, r"{} ({}) \\".format(name, email) # name
+			print >>g, r"Starting Bid: {} \\".format(starting_bid)
+			print >>g, r"Winner(s): "
+			if num_winners == 1: 	print >>g, r"Top bidder\newline"
+			else: 					print >>g, r"Top {} bids\newline".format(num_winners)
+			print >>g, r"{}".format(description) # description
+
+	print >>f, r"\end{document}"
+	print >>g, r"\end{document}"
+
+	f.close()
+	g.close()
