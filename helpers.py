@@ -1,8 +1,8 @@
 def addDollarSign(amt):
-    if amt[0] == '$':
+    if amt[:2] == '\\$':
         return amt
     else:
-        return '$'+amt
+        return '\\$'+amt
 
 
 def handleLatexChars(s):
