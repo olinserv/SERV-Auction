@@ -6,7 +6,8 @@ PRECONDITION:	{AUCTION[year]}/final.csv is a csv file where each row is an item,
 				is blank to start at the end. The order of the columns is specified
 				in HEADER. Feel free to change it.
 PRECONDITION:	keys.py is a script containing EMAIL_USERNAME and EMAIL_PASSWORD,
-				valid GMail credentials.
+				valid GMail credentials, and the attached GMail account has "Allow
+				less secure apps" turned on.
 POSTCONDITION:	Each winner who has been paid will be emailed along with the donor
 				saying that they paid, unless they have already been emailed
 				(the 'receipt' column keeps track of this automatically).
@@ -35,7 +36,7 @@ from helpers import *
 import keys
 
 
-REMINDING = True # are we reminding those who did not pay?
+REMINDING = False # are we reminding those who did not pay?
 
 
 AUCTION = dict(
@@ -58,11 +59,10 @@ Hello, {winner_name}. This email confirms that you paid {winning_bid} {payment_m
 Thank you both for participating in the SERV Auction! With your help, we raised {total} for {charity}. Let me know if you have any questions.\
 '''
 
-REMIND_SUBJECT = '''Don't forget to pay for your SERV Auction item!'''
+REMIND_SUBJECT = '''SERV Auction item'''
 REMIND_TEXT = '''\
-Hello, {winner_name}. I don't believe you have paid for {donor_name}'s "{title}" yet. You owe {winning_bid}. Please submit your payment to PayPal as soon as possible so that we can make the donation. Please let me know if you have any questions.
-
-Thank you\
+I see you still haven't paid your {winning_bid} for "{title}". Please pay somehow as soon as physically possible. If you don't have a PayPal, please create one. It's really easy.
+https://www.paypal.com/us/webapps/mpp/account-selection\
 '''
 
 D_RECEIPT_SUBJECT = '''Receipt - Item donation to the SERV Auction'''
@@ -107,8 +107,8 @@ with open('{}/final.csv'.format(AUCTION['year']), 'r', newline='') as f:
 				item['donor_email'] = parse_email(item['donor_name'], item['donor_affiliation']) # check to make sure the email addresses are real
 			if not item['winner_email']:
 				raise ValueError('There was no winner email address provided for "{title}".'.format(**item))
-			item['starting_bid'] = addDollarSign(item['starting_bid']) # make sure all monetary amounts have exactly one dollar sign
-			item['winning_bid'] = addDollarSign(item['winning_bid'])
+			item['starting_bid'] = item['starting_bid'] # make sure all monetary amounts have exactly one dollar sign
+			item['winning_bid'] = item['winning_bid']
 			if item['paid'].lower() == "paypal":
 				item['payment_mode'] = "via PayPal" # specify how tho payment was made, in words
 			elif item['paid']:
