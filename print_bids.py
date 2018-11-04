@@ -2,7 +2,7 @@
 PRECONDITION:	YEAR is an integer - the current year.
 PRECONDITION:	{YEAR}/silent.csv is a csv file where each row is an item,
 				with information about the donor and donation. The order of the
-				columns is specified in HEADER. Feel free to change it.
+				columns is specified in HEADER. Feel free to change HEADER to match.
 POSTCONDITION:	{YEAR}/servsheets.tex is a Tex file that can be compiled and
 				printed into the bid sheets for the Silent Auction.
 WARNING:		This script ignores special characters, as there is no easy way
@@ -19,7 +19,7 @@ import csv
 from helpers import *
 
 ALUMNI_FILTER = False
-YEAR = 2017
+YEAR = 2018
 HEADER = ['name', 'email', 'affiliation', 'title', 'description', 'category', 'starting_bid', 'interest_for', 'num_winners']
 NUM_LINES = 26
 
