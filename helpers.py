@@ -16,6 +16,7 @@ def handleLatexChars(s):
         .replace("%","\\%")
         .replace(">", "\\textgreater ")
         .replace("<", "\\textless ")
+        .replace("\n", "\n\n")
     )
 
 

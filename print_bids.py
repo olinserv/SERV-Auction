@@ -1,6 +1,6 @@
 '''
 PRECONDITION:	YEAR is an integer - the current year.
-PRECONDITION:	{YEAR}/silent.csv is a csv file where each row is an item,
+PRECONDITION:	{YEAR}/{FILENAME}.csv is a csv file where each row is an item,
 				with information about the donor and donation. The order of the
 				columns is specified in HEADER. Feel free to change HEADER to match.
 POSTCONDITION:	{YEAR}/servsheets.tex is a Tex file that can be compiled and
@@ -23,10 +23,9 @@ YEAR = 2018
 HEADER = ['name', 'email', 'affiliation', 'title', 'description', 'category', 'starting_bid', 'interest_for', 'num_winners']
 NUM_LINES = 26
 
-with open('{}/silent.csv'.format(YEAR), 'r') as sample:
+with open('{}/{}.csv'.format(YEAR, FILENAME), 'r', encoding='utf-8') as sample, \
+	open('{}/servsheets.tex'.format(YEAR), 'w', encoding='utf-8') as f:
 	readSample = csv.reader(sample, delimiter=',', quotechar='"')
-
-	f = open('{}/servsheets.tex'.format(YEAR),'w')
 
 	f.write('''\
 			\\documentclass[11pt]{{article}}
@@ -44,13 +43,12 @@ with open('{}/silent.csv'.format(YEAR), 'r') as sample:
 		if header:
 			header = False
 			continue
-		idx = categoryNames.index(item[5])
+		idx = categoryNames.index(item[HEADER.index('category')])
 		categories[idx].append(item)
 
-	for i, category in enumerate(categories):
-
-		category = sorted(category, key=lambda item:item[3].lower()) # sort by title, alphabetically
-		for j, row in enumerate(category):
+	for i, items_in_category in enumerate(categories):
+		items_in_category = sorted(items_in_category, key=lambda item:item[HEADER.index('title')].lower()) # sort by title, alphabetically
+		for j, row in enumerate(items_in_category):
 			item = {key:handleLatexChars(val.strip()) for key,val in zip(HEADER,row)} # unpack the row
 
 			if not item['email']:
@@ -69,7 +67,7 @@ with open('{}/silent.csv'.format(YEAR), 'r') as sample:
 			# write the important information to the file
 			f.write('''\
 					\\section*{{{0}.{1} {title}}}
-					{name} ({email}) \\\\
+					{name} <{email}> \\\\
 					Starting Bid: {starting_bid} \\\\
 					Winner(s): {winners} \\\\
 					{description} \\\\
@@ -98,4 +96,3 @@ with open('{}/silent.csv'.format(YEAR), 'r') as sample:
 			# print >>f, r"\end{tabular}"
 			# print >>f, r"\clearpage"
 	f.write('\\end{document}')
-	f.close()
