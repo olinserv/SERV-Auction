@@ -20,7 +20,8 @@ from helpers import *
 
 ALUMNI_FILTER = False
 YEAR = 2018
-HEADER = ['name', 'email', 'affiliation', 'title', 'description', 'category', 'starting_bid', 'interest_for', 'num_winners']
+FILENAME = 'SERV Auction Donations（回答） - フォームの回答 1'
+HEADER = ['taimu_sutampu', 'name', 'email', 'affiliation', 'title', 'description', 'starting_bid', 'category', 'num_winners', 'interest_for']
 NUM_LINES = 26
 
 with open('{}/{}.csv'.format(YEAR, FILENAME), 'r', encoding='utf-8') as sample, \
@@ -39,7 +40,7 @@ with open('{}/{}.csv'.format(YEAR, FILENAME), 'r', encoding='utf-8') as sample, 
 	categoryNames = ["Services", "Food", "Events", "Lessons", "Arts and Crafts", "Miscellaneous"]
 
 	header = True # I can't for the life of me figure out a better way to skip the header
-	for item in readSample:
+	for item in readSample: # TODO: use pandas. pandas is so nice.
 		if header:
 			header = False
 			continue

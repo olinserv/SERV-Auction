@@ -21,8 +21,8 @@ def handleLatexChars(s):
 
 
 def parse_email(name, affiliation):
-    name = name.split(',')[0].split(';')[0] # pull out the first name if there are several
+    name = name.lower().split(',')[0].split(';')[0] # pull out the first name if there are several
     if affiliation == "Alum":
         return ".".join(name.split()) + "@alumni.olin.edu" # first.last@alumni.olin.edu
     else:
-        return "".join(name.split()[0][0], *name.split()[1:]) + "@olin.edu" # flast@olin.edu
+        return "".join([name.split()[0][0], *name.split()[1:]]) + "@olin.edu" # flast@olin.edu
